@@ -20,50 +20,59 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     public static final String TAG="TAG";
     RecyclerView videoList;
     VideoAdapter adapter;
+    List<Video> all_videos;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        all_videos = new ArrayList<>();
         videoList =findViewById(R.id.videoList);
         videoList.setLayoutManager(new LinearLayoutManager(this));
-        adapter=new VideoAdapter();
+        adapter=new VideoAdapter(this, all_videos);
         videoList.setAdapter(adapter);
         getJsonData();
 
     }
 
     private void getJsonData() {
-        String URL="http://192.168.200.195:4000/videos";
+        String URL="http://172.16.9.153:4000/videos";
         RequestQueue requestQueue= Volley.newRequestQueue(this);
         JsonObjectRequest objectRequest=new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray categories=response.getJSONArray("videos");
+                    JSONArray videos =response.getJSONArray("videos");
 
-                    Log.d(TAG,"changeResponse"+categories);
-                    for(int i=0;i<categories.length();i++)
+                    Log.d(TAG,"changeResponse"+videos);
+
+                    for(int i = 0; i < videos.length() ; i++)
                     {
-                        JSONObject video=categories.getJSONObject(i);
-
-                        video v=new video();
+                        JSONObject video=videos.getJSONObject(i);
+                        Video v = new Video();
                         v.setId(video.getString("id"));
                         v.setName(video.getString("name"));
-                        String url="http://192.168.200.195:4000/video/";
+                        String url="http://172.16.9.153:4000/video/";
                         url=url.concat(video.getString("id"));
+
                         Log.d(TAG, "url=: "+url);
+
                         v.setVideoUrl(url);
 
+                        all_videos.add(v);
+                        adapter.notifyDataSetChanged();
 
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
         },new Response.ErrorListener(){
             @Override

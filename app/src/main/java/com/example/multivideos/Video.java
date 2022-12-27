@@ -1,6 +1,8 @@
 package com.example.multivideos;
 
-public class video {
+import java.io.Serializable;
+
+public class Video implements Serializable{
     private  String id;
     private  String name;
     private  String videoUrl;
